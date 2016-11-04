@@ -1,10 +1,10 @@
-package com.pochemuto.orvibo.protocol;
+package com.pochemuto.orvibo.api.message;
 
 import org.jetbrains.annotations.NotNull;
 
 import lombok.Data;
 
-import static com.pochemuto.orvibo.protocol.Helpers.bytes;
+import static com.pochemuto.orvibo.api.Helpers.bytes;
 
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)
@@ -19,7 +19,11 @@ public class Message {
     @NotNull
     private byte[] bytes = new byte[0];
 
-    public short getLength() {
-        return (short) (MAGIC.length + this.getCommandId().getLength() + 2 + getBytes().length);
+    public int getLength() {
+        return getHeaderLength() + getBytes().length;
+    }
+
+    public int getHeaderLength() {
+        return MAGIC.length + this.getCommandId().getLength() + 2;
     }
 }

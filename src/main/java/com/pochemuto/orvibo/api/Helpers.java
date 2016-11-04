@@ -1,6 +1,7 @@
-package com.pochemuto.orvibo.protocol;
+package com.pochemuto.orvibo.api;
 
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)
@@ -19,6 +20,6 @@ public class Helpers {
     }
 
     public static String dump(byte[] bytes) {
-        return ByteBufUtil.hexDump(bytes);
+        return ByteBufUtil.hexDump(Unpooled.wrappedBuffer(bytes));
     }
 }

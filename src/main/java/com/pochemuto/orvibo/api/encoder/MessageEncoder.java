@@ -1,7 +1,8 @@
-package com.pochemuto.orvibo.protocol;
+package com.pochemuto.orvibo.api.encoder;
+
+import com.pochemuto.orvibo.api.message.Message;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
@@ -23,7 +24,6 @@ public class MessageEncoder extends MessageToMessageEncoder<Message> {
         buf.writeShort(msg.getLength());
         buf.writeBytes(msg.getCommandId().getBytes());
         buf.writeBytes(msg.getBytes());
-        log.debug("send message: " + ByteBufUtil.hexDump(buf));
         out.add(buf);
     }
 }

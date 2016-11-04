@@ -1,4 +1,7 @@
-package com.pochemuto.orvibo.protocol;
+package com.pochemuto.orvibo.api.encoder;
+
+import com.pochemuto.orvibo.api.message.Message;
+import com.pochemuto.orvibo.api.message.DiscoveryCommand;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;

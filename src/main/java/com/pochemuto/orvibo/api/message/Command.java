@@ -1,4 +1,4 @@
-package com.pochemuto.orvibo.protocol;
+package com.pochemuto.orvibo.api.message;
 
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)

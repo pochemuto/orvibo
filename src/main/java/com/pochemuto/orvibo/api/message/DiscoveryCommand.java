@@ -1,4 +1,4 @@
-package com.pochemuto.orvibo.protocol;
+package com.pochemuto.orvibo.api.message;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

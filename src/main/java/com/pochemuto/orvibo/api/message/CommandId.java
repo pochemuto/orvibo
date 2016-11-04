@@ -1,15 +1,15 @@
-package com.pochemuto.orvibo.protocol;
+package com.pochemuto.orvibo.api.message;
 
 import java.util.Arrays;
 
-import static com.pochemuto.orvibo.protocol.Helpers.dump;
+import static com.pochemuto.orvibo.api.Helpers.dump;
 
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)
  * @date 02.11.2016
  */
 public enum CommandId {
-    DISCOVERY(0x71, 0x61), TEST(0x10, 0x1);
+    DISCOVERY(0x71, 0x61);
 
     private final byte[] bytes;
     private final int id;
@@ -38,7 +38,7 @@ public enum CommandId {
             }
         }
 
-        throw new RuntimeException("unknown command: " + dump(bytes));
+        throw new RuntimeException("unknown message: " + dump(bytes));
     }
 
     private static int code(int... bytes) {
@@ -48,9 +48,5 @@ public enum CommandId {
             c += bytes[i];
         }
         return c;
-    }
-
-    public static void main(String... args) {
-        System.out.println(TEST.id);
     }
 }
