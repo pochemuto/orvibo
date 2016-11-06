@@ -25,7 +25,8 @@ public class DatagramEncoder extends MessageToMessageEncoder<ByteBuf> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-        out.add(new DatagramPacket(msg.copy(), recipient));
-        log.info("message was send: " + ByteBufUtil.hexDump(msg));
+        DatagramPacket packet = new DatagramPacket(msg.copy(), recipient);
+        out.add(packet);
+        log.info("message was send: {}, content: {}", packet, ByteBufUtil.hexDump(msg));
     }
 }

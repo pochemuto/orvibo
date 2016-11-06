@@ -4,15 +4,10 @@ import lombok.Data;
 
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)
- * @date 04.11.2016
+ * @date 05.11.2016
  */
 @Data
-public class DiscoveryResponse {
-    private MacAddress mac = MacAddress.empty();
-
-    private String text;
-
+public class SubscribeResponse {
+    private MacAddress macAddress;
     private boolean isOn;
-
-    private long time;
 }

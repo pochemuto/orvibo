@@ -1,7 +1,9 @@
 package com.pochemuto.orvibo.api.encoder;
 
-import com.pochemuto.orvibo.api.message.Message;
+import com.pochemuto.orvibo.api.message.CommandId;
 import com.pochemuto.orvibo.api.message.DiscoveryCommand;
+import com.pochemuto.orvibo.api.message.MacAddress;
+import com.pochemuto.orvibo.api.message.Message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
@@ -17,11 +19,13 @@ public class DiscoveryEncoder extends MessageToMessageEncoder<DiscoveryCommand> 
     @Override
     protected void encode(ChannelHandlerContext ctx, DiscoveryCommand msg, List<Object> out) throws Exception {
         Message outMessage = new Message();
-        outMessage.setCommandId(msg.getCommand());
 
-        byte[] macAddress = msg.getMacAddress();
+        MacAddress macAddress = msg.getMacAddress();
         if (macAddress != null) {
-            outMessage.setBytes(macAddress);
+            outMessage.setCommandId(CommandId.DISCOVERY_TARGET);
+            outMessage.setBytes(macAddress.getMac());
+        } else {
+            outMessage.setCommandId(CommandId.DISCOVERY);
         }
 
         out.add(outMessage);

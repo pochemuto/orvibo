@@ -2,11 +2,15 @@ package com.pochemuto.orvibo.api;
 
 import com.pochemuto.orvibo.api.decoder.DiscoveryDecoder;
 import com.pochemuto.orvibo.api.decoder.MessageDecoder;
+import com.pochemuto.orvibo.api.decoder.SubscribeDecoder;
 import com.pochemuto.orvibo.api.encoder.DatagramEncoder;
 import com.pochemuto.orvibo.api.encoder.DiscoveryEncoder;
 import com.pochemuto.orvibo.api.encoder.MessageEncoder;
+import com.pochemuto.orvibo.api.encoder.SubscribeEncoder;
 import com.pochemuto.orvibo.api.message.DiscoveryCommand;
 import com.pochemuto.orvibo.api.message.DiscoveryResponse;
+import com.pochemuto.orvibo.api.message.SubscribeCommand;
+import com.pochemuto.orvibo.api.message.SubscribeResponse;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -60,28 +64,48 @@ public class OrviboApi {
                 .addLast(new MessageEncoder())
                 .addLast(new DiscoveryDecoder())
                 .addLast(new DiscoveryEncoder())
-                .addLast(new MessageHandler<>(this::received, DiscoveryResponse.class));
+                .addLast(new SubscribeDecoder())
+                .addLast(new SubscribeEncoder())
+                .addLast(new MessageHandler<>(this::received, DiscoveryResponse.class))
+                .addLast(new MessageHandler<>(this::received, SubscribeResponse.class));
     }
 
     private Consumer<DiscoveryResponse> discoveryHandler;
+    private Consumer<SubscribeResponse> subscribeHandler;
 
     public OrviboApi onDiscovery(Consumer<DiscoveryResponse> hander) {
         this.discoveryHandler = hander;
         return this;
     }
 
-    private void send(Object message) {
+    public OrviboApi onSubscribe(Consumer<SubscribeResponse> hander) {
+        this.subscribeHandler = hander;
+        return this;
+    }
+
+    private void send0(Object message) {
         channel.writeAndFlush(message);
     }
 
-    public void sendMessage(DiscoveryCommand command) {
-        send(command);
+    public void send(DiscoveryCommand command) {
+        send0(command);
+    }
+
+    public void send(SubscribeCommand command) {
+        send0(command);
     }
 
     private void received(DiscoveryResponse response) {
         log.debug("discovery response received " + response);
         if (discoveryHandler != null) {
             discoveryHandler.accept(response);
+        }
+    }
+
+    private void received(SubscribeResponse response) {
+        log.debug("subscribe response received " + response);
+        if (subscribeHandler != null) {
+            subscribeHandler.accept(response);
         }
     }
 }

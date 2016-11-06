@@ -22,6 +22,7 @@ public class MessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+        log.debug("message was received: {}, content: {}", msg, ByteBufUtil.hexDump(msg.content()));
         Message message = new Message();
         ByteBuf content = msg.content();
         ByteBuf magicBytes = content.readBytes(2);

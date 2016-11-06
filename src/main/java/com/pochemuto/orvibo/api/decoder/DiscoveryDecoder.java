@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.pochemuto.orvibo.api.Helpers.readMacAddress;
+
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)
  * @date 04.11.2016
@@ -22,7 +24,9 @@ public class DiscoveryDecoder extends MessageToMessageDecoder<Message> {
 
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
-        return super.acceptInboundMessage(msg) && ((Message) msg).getCommandId() == CommandId.DISCOVERY;
+        CommandId commandId = ((Message) msg).getCommandId();
+        return super.acceptInboundMessage(msg) &&
+                (commandId == CommandId.DISCOVERY || commandId == CommandId.DISCOVERY_TARGET);
     }
 
     @Override
@@ -31,8 +35,12 @@ public class DiscoveryDecoder extends MessageToMessageDecoder<Message> {
 
         if (msg.getBytes().length > 0) {
             ByteBuf buf = Unpooled.wrappedBuffer(msg.getBytes());
-            buf.skipBytes(1); // zero-byte
-            buf.readBytes(response.getMac());
+            byte zero = buf.readByte(); // zero-byte
+            if (zero != 0) {
+                log.info("skip discovery outgoing message");
+                return;
+            }
+            response.setMac(readMacAddress(buf));
             buf.skipBytes(6); // padding
             buf.skipBytes(6); // mac LE
             buf.skipBytes(6); // padding

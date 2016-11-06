@@ -1,33 +1,12 @@
 package com.pochemuto.orvibo.api.message;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import lombok.Data;
 
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)
  * @date 04.11.2016
  */
+@Data
 public class DiscoveryCommand {
-    private byte[] mac;
-
-    @NotNull
-    public CommandId getCommand() {
-        return CommandId.DISCOVERY;
-    }
-
-    public void setMacAddress(@Nullable  byte[] mac) {
-        if (mac != null && mac.length != 6) {
-            throw new IllegalArgumentException("wrong mac address size: " + mac.length);
-        }
-        this.mac = mac;
-    }
-
-    @Nullable
-    public byte[] getMacAddress() {
-        if (mac != null) {
-            return mac.clone();
-        } else {
-            return null;
-        }
-    }
+    private MacAddress macAddress;
 }

@@ -1,5 +1,10 @@
 package com.pochemuto.orvibo.api;
 
+import com.pochemuto.orvibo.api.message.MacAddress;
+
+import org.jetbrains.annotations.NotNull;
+
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 
@@ -19,7 +24,22 @@ public class Helpers {
         return result;
     }
 
-    public static String dump(byte[] bytes) {
+    public static String dump(@NotNull byte[] bytes) {
         return ByteBufUtil.hexDump(Unpooled.wrappedBuffer(bytes));
+    }
+
+    @NotNull
+    public static byte[] reversed(@NotNull byte[] bytes) {
+        byte[] result = new byte[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            result[bytes.length - i] = bytes[i];
+        }
+        return result;
+    }
+
+    public static MacAddress readMacAddress(ByteBuf byteBuf) {
+        byte[] bytes = new byte[6];
+        byteBuf.readBytes(bytes);
+        return new MacAddress(bytes);
     }
 }
