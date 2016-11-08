@@ -9,7 +9,7 @@ import static com.pochemuto.orvibo.api.Helpers.dump;
  * @date 02.11.2016
  */
 public enum CommandId {
-    DISCOVERY(0x71, 0x61), DISCOVERY_TARGET(0x71, 0x67), SUBSCRIBE(0x63, 0x6C);
+    DISCOVERY(0x71, 0x61), DISCOVERY_TARGET(0x71, 0x67), SUBSCRIBE(0x63, 0x6C), POWER(0x64, 0x63), POWER_STATE(0x73, 0x66);
 
     private final byte[] bytes;
     private final int id;

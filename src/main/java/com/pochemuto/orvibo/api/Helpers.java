@@ -25,7 +25,13 @@ public class Helpers {
     }
 
     public static String dump(@NotNull byte[] bytes) {
-        return ByteBufUtil.hexDump(Unpooled.wrappedBuffer(bytes));
+        String hexDump = ByteBufUtil.hexDump(Unpooled.wrappedBuffer(bytes));
+        StringBuilder sb = new StringBuilder(hexDump.length() / 2 - 1);
+        sb.append(hexDump);
+        for (int i = sb.length() - 2; i > 0; i -= 2) {
+            sb.insert(i, ' ');
+        }
+        return sb.toString();
     }
 
     @NotNull

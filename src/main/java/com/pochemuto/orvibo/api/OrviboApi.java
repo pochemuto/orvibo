@@ -6,9 +6,11 @@ import com.pochemuto.orvibo.api.decoder.SubscribeDecoder;
 import com.pochemuto.orvibo.api.encoder.DatagramEncoder;
 import com.pochemuto.orvibo.api.encoder.DiscoveryEncoder;
 import com.pochemuto.orvibo.api.encoder.MessageEncoder;
+import com.pochemuto.orvibo.api.encoder.PowerEncoder;
 import com.pochemuto.orvibo.api.encoder.SubscribeEncoder;
 import com.pochemuto.orvibo.api.message.DiscoveryCommand;
 import com.pochemuto.orvibo.api.message.DiscoveryResponse;
+import com.pochemuto.orvibo.api.message.PowerCommand;
 import com.pochemuto.orvibo.api.message.SubscribeCommand;
 import com.pochemuto.orvibo.api.message.SubscribeResponse;
 
@@ -66,6 +68,7 @@ public class OrviboApi {
                 .addLast(new DiscoveryEncoder())
                 .addLast(new SubscribeDecoder())
                 .addLast(new SubscribeEncoder())
+                .addLast(new PowerEncoder())
                 .addLast(new MessageHandler<>(this::received, DiscoveryResponse.class))
                 .addLast(new MessageHandler<>(this::received, SubscribeResponse.class));
     }
@@ -92,6 +95,10 @@ public class OrviboApi {
     }
 
     public void send(SubscribeCommand command) {
+        send0(command);
+    }
+
+    public void send(PowerCommand command) {
         send0(command);
     }
 

@@ -4,11 +4,14 @@ import com.pochemuto.orvibo.api.OrviboApi;
 import com.pochemuto.orvibo.api.message.DiscoveryCommand;
 import com.pochemuto.orvibo.api.message.DiscoveryResponse;
 import com.pochemuto.orvibo.api.message.MacAddress;
+import com.pochemuto.orvibo.api.message.PowerCommand;
 import com.pochemuto.orvibo.api.message.SubscribeCommand;
 import com.pochemuto.orvibo.api.message.SubscribeResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,11 +36,30 @@ public class Orvibo {
 
     private final ConcurrentHashMap<MacAddress, CompletableFuture<Device>> subscribeFutures = new ConcurrentHashMap<>();
 
+    private static MacAddress mineMac() {
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
+            return new MacAddress(networkInterface.getHardwareAddress());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String... args) throws Exception {
         Orvibo orvibo = new Orvibo();
         orvibo.init();
-        orvibo.subscribe(MacAddress.fromString("accf238d9b70"))
-                .thenAccept(System.out::println);
+        MacAddress socket = MacAddress.fromString("ac cf 23 8d 9b 70");
+        PowerCommand command = new PowerCommand(socket);
+        while (true) {
+            orvibo.subscribe(socket).thenAccept(
+                    s -> {
+                        command.setOn(!command.isOn());
+                        orvibo.api.send(command);
+                    }
+            ).get();
+            Thread.sleep(2000);
+        }
     }
 
     public Orvibo() {

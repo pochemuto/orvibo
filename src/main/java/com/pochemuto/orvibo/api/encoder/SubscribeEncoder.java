@@ -1,6 +1,7 @@
 package com.pochemuto.orvibo.api.encoder;
 
 import com.pochemuto.orvibo.api.message.CommandId;
+import com.pochemuto.orvibo.api.message.MacAddress;
 import com.pochemuto.orvibo.api.message.Message;
 import com.pochemuto.orvibo.api.message.SubscribeCommand;
 
@@ -28,9 +29,9 @@ public class SubscribeEncoder extends MessageToMessageEncoder<SubscribeCommand> 
         byte[] macAddress = msg.getMacAddress().getMac();
         ByteBuf buf = Unpooled.buffer(macAddress.length * 4);
         buf.writeBytes(macAddress);
-        buf.writeZero(6);
+        buf.writeBytes(MacAddress.PADDING);
         buf.writeBytes(reversed(macAddress));
-        buf.writeZero(6);
+        buf.writeBytes(MacAddress.PADDING);
 
         outMessage.setBytes(ByteBufUtil.getBytes(buf));
 

@@ -19,11 +19,14 @@ public class MacAddress {
 
     private static final MacAddress EMPTY = new MacAddress(EMPTY_MAC);
 
+    public static final byte[] PADDING = new byte[] {0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+
     public static MacAddress empty() {
         return EMPTY;
     }
 
     public static MacAddress fromString(String str) {
+        str = str.replaceAll(" ", "");
         if (str.length() != 6 * 2) {
             throw new IllegalArgumentException("wrong hex length: " + str);
         }
