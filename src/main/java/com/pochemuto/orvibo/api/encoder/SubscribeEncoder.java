@@ -25,7 +25,7 @@ public class SubscribeEncoder extends MessageToMessageEncoder<SubscribeCommand> 
         Message outMessage = new Message();
         outMessage.setCommandId(CommandId.SUBSCRIBE);
 
-        byte[] macAddress = msg.getMacAddress();
+        byte[] macAddress = msg.getMacAddress().getMac();
         ByteBuf buf = Unpooled.buffer(macAddress.length * 4);
         buf.writeBytes(macAddress);
         buf.writeZero(6);

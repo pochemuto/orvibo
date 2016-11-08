@@ -7,8 +7,6 @@ import lombok.Data;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.pochemuto.orvibo.api.Helpers.bytes;
-
 /**
  * @author Alexander Kramarev (pochemuto@gmail.com)
  * @date 05.11.2016
@@ -34,13 +32,6 @@ public class MacAddress {
             mac[i] = Integer.valueOf(str.substring(i * 2, i * 2 + 2), 16).byteValue();
         }
         return new MacAddress(mac);
-    }
-
-    public static void main(String... args) {
-        MacAddress macAddress = new MacAddress(bytes(0xaa, 0x12, 0xac, 0, 5, 52));
-        System.out.println(macAddress);
-        MacAddress macAddress1 = MacAddress.fromString("aa12ac000534");
-        System.out.println(macAddress1);
     }
 
     public MacAddress(byte[] mac) {

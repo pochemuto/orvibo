@@ -4,6 +4,8 @@ import com.pochemuto.orvibo.api.OrviboApi;
 import com.pochemuto.orvibo.api.message.DiscoveryCommand;
 import com.pochemuto.orvibo.api.message.DiscoveryResponse;
 import com.pochemuto.orvibo.api.message.MacAddress;
+import com.pochemuto.orvibo.api.message.SubscribeCommand;
+import com.pochemuto.orvibo.api.message.SubscribeResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,16 +31,19 @@ public class Orvibo {
 
     private final Set<Device> knownDevices = ConcurrentHashMap.newKeySet();
 
+    private final ConcurrentHashMap<MacAddress, CompletableFuture<Device>> subscribeFutures = new ConcurrentHashMap<>();
+
     public static void main(String... args) throws Exception {
         Orvibo orvibo = new Orvibo();
         orvibo.init();
-        orvibo.discovery(MacAddress.fromString("accf238d9b70"))
+        orvibo.subscribe(MacAddress.fromString("accf238d9b70"))
                 .thenAccept(System.out::println);
     }
 
     public Orvibo() {
         api = new OrviboApi();
         api.onDiscovery(this::onDiscovery);
+        api.onSubscribe(this::onSubscribe);
     }
 
     public CompletableFuture<Set<Device>> discovery() {
@@ -53,6 +58,15 @@ public class Orvibo {
         return delayed(this::getKnownDevices, DISCOVERY_TIMEOUT);
     }
 
+    private CompletableFuture<Device> subscribe(MacAddress mac) {
+        return subscribeFutures.computeIfAbsent(mac, m -> {
+            SubscribeCommand subscribeCommand = new SubscribeCommand(mac);
+            CompletableFuture<Device> f = new CompletableFuture<>();
+            api.send(subscribeCommand);
+            return f;
+        });
+    }
+
     private <T> CompletableFuture<T> delayed(Supplier<T> resultSupplier, int delay) {
         CompletableFuture<T> future = new CompletableFuture<>();
         executor.schedule(() -> future.complete(resultSupplier.get()), delay, TimeUnit.MILLISECONDS);
@@ -61,6 +75,14 @@ public class Orvibo {
 
     private Set<Device> getKnownDevices() {
         return knownDevices;
+    }
+
+    private void onSubscribe(SubscribeResponse subscribeResponse) {
+        MacAddress mac = subscribeResponse.getMacAddress();
+        CompletableFuture<Device> future = subscribeFutures.remove(mac);
+        if (future != null) {
+            future.complete(new Device(mac));
+        }
     }
 
     private void onDiscovery(DiscoveryResponse response) {

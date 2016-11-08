@@ -32,7 +32,7 @@ public class Helpers {
     public static byte[] reversed(@NotNull byte[] bytes) {
         byte[] result = new byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
-            result[bytes.length - i] = bytes[i];
+            result[bytes.length - i - 1] = bytes[i];
         }
         return result;
     }
