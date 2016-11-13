@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.util.CharsetUtil;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -37,6 +38,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * @date 13.11.2016
  */
 
+@Slf4j
 public class HttpHandler extends SimpleChannelInboundHandler<Object> {
     private final Orvibo orvibo;
     private HttpRequest request;
@@ -64,21 +66,22 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
 
                 QueryStringDecoder queryDecoder = new QueryStringDecoder(request.uri());
                 buf.setLength(0);
+                log.info("Received request: " + queryDecoder.path());
                 Request r = parseRequest(queryDecoder.path());
                 switch (r.getCommand()) {
                     case "on":
                         orvibo.setPower(r.getDeviceId(), true).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "off":
-                        orvibo.setPower(r.getDeviceId(), false);
+                        orvibo.setPower(r.getDeviceId(), false).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "toggle":
-                        orvibo.setPower(r.getDeviceId(), false);
+                        orvibo.setPower(r.getDeviceId(), false).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "state":
                     default:
                         boolean on = orvibo.getDevices().get(r.getDeviceId()).isOn();
-                        buf.append(on ? "ON" : "OFF");
+                        buf.append(on ? "1" : "0");
                 }
 
             }

@@ -6,7 +6,6 @@ import com.pochemuto.orvibo.api.message.DiscoveryResponse;
 import com.pochemuto.orvibo.api.message.PowerCommand;
 import com.pochemuto.orvibo.api.message.PowerResponse;
 import com.pochemuto.orvibo.api.message.SubscribeCommand;
-import com.pochemuto.orvibo.api.message.SubscribeResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,12 +42,11 @@ public class Orvibo {
         try {
             api = new OrviboApi();
             api.onDiscovery(this::onDiscovery);
-            api.onSubscribe(this::onSubscribe);
             api.onPower(this::onPower);
             api.init();
 
             scheduler.scheduleWithFixedDelay(this::clean, 5, 5, TimeUnit.MINUTES);
-            scheduler.scheduleWithFixedDelay(this::discover, 0, 1, TimeUnit.MINUTES);
+            scheduler.scheduleWithFixedDelay(this::discover, 0, 30, TimeUnit.SECONDS);
         } catch (Exception ex) {
             log.error("Api initialization error");
             throw new RuntimeException(ex);
@@ -63,12 +61,6 @@ public class Orvibo {
         if (future != null) {
             future.complete(device.isOn());
         }
-    }
-
-    private void onSubscribe(SubscribeResponse response) {
-        Device device = new Device(response.getMacAddress());
-        device.setOn(response.isOn());
-        deviceFound(device, "subscribe");
     }
 
     private void onDiscovery(DiscoveryResponse response) {
@@ -111,6 +103,7 @@ public class Orvibo {
     public CompletableFuture<Boolean> setPower(Device device, boolean isOn) {
         PowerCommand command = new PowerCommand(device.getMacAddress());
         command.setOn(isOn);
+        log.info("Setting power for " + device.getMacAddress() + " to " + stringState(isOn));
         return switchFutures.computeIfAbsent(device, d -> {
             CompletableFuture<Boolean> future = new CompletableFuture<>();
             api.send(command);

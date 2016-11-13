@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class SubscribeResponse {
     private MacAddress macAddress;
-    private boolean isOn;
+    private boolean success;
 }

@@ -33,7 +33,7 @@ public class SubscribeDecoder extends MessageToMessageDecoder<Message> {
             response.setMacAddress(readMacAddress(buf));
             buf.skipBytes(6); // padding
             buf.skipBytes(5); // UNKNOWN
-            response.setOn(buf.readBoolean());
+            response.setSuccess(buf.readBoolean());
         }
 
         out.add(response);
