@@ -41,11 +41,6 @@ public class OrviboApi {
 
     private EventLoopGroup loopGroup;
 
-    public static void main(String... args) throws Exception {
-        OrviboApi orviboApi = new OrviboApi();
-        orviboApi.init();
-    }
-
     public void init() throws Exception {
         loopGroup = new NioEventLoopGroup();
 
