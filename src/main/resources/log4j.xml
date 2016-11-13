@@ -10,6 +10,14 @@
         </layout>
     </appender>
 
+    <logger name="com.pochemuto.orvibo.api" additivity="false">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="io.netty" additivity="false">
+        <level value="WARN"/>
+    </logger>
+
     <root>
         <level value="DEBUG" />
         <appender-ref ref="console" />

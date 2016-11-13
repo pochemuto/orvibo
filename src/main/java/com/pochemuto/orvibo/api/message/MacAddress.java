@@ -12,7 +12,7 @@ import java.util.Objects;
  * @date 05.11.2016
  */
 @Data
-public class MacAddress {
+public class MacAddress implements Comparable<MacAddress> {
     private static final byte[] EMPTY_MAC = new byte[6];
 
     private final byte[] mac;
@@ -40,7 +40,7 @@ public class MacAddress {
     public MacAddress(byte[] mac) {
         Objects.requireNonNull(mac);
         if (mac.length != 6) {
-            throw new IllegalArgumentException("wrong mac address size: " + mac.length);
+            throw new IllegalArgumentException("wrong macAddress address size: " + mac.length);
         }
         this.mac = mac;
     }
@@ -52,5 +52,10 @@ public class MacAddress {
     @Override
     public String toString() {
         return Helpers.dump(mac);
+    }
+
+    @Override
+    public int compareTo(MacAddress o) {
+        return Helpers.dump(mac).compareTo(Helpers.dump(o.mac));
     }
 }

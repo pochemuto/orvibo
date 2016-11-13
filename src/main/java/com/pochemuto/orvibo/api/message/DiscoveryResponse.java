@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 public class DiscoveryResponse {
-    private MacAddress mac = MacAddress.empty();
+    private MacAddress macAddress = MacAddress.empty();
 
     private String text;
 

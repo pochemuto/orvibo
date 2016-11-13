@@ -10,12 +10,13 @@ import lombok.Data;
  */
 @Data
 public class Device {
-    private final MacAddress mac;
 
-    private boolean isOn;
+    private final MacAddress macAddress;
+
+    private transient boolean isOn;
 
     @Override
     public String toString() {
-        return "Device [mac=" + mac + ", " + (isOn ? "ON" : "OFF") + ']';
+        return "Device [macAddress=" + macAddress + ", " + (isOn ? "ON" : "OFF") + ']';
     }
 }

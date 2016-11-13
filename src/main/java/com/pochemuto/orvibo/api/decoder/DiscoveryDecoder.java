@@ -40,9 +40,9 @@ public class DiscoveryDecoder extends MessageToMessageDecoder<Message> {
                 log.info("skip discovery outgoing message");
                 return;
             }
-            response.setMac(readMacAddress(buf));
+            response.setMacAddress(readMacAddress(buf));
             buf.skipBytes(6); // padding
-            buf.skipBytes(6); // mac LE
+            buf.skipBytes(6); // macAddress LE
             buf.skipBytes(6); // padding
 
             byte[] bin = new byte[6];

@@ -2,6 +2,7 @@ package com.pochemuto.orvibo.api;
 
 import com.pochemuto.orvibo.api.decoder.DiscoveryDecoder;
 import com.pochemuto.orvibo.api.decoder.MessageDecoder;
+import com.pochemuto.orvibo.api.decoder.PowerDecoder;
 import com.pochemuto.orvibo.api.decoder.SubscribeDecoder;
 import com.pochemuto.orvibo.api.encoder.DatagramEncoder;
 import com.pochemuto.orvibo.api.encoder.DiscoveryEncoder;
@@ -11,6 +12,7 @@ import com.pochemuto.orvibo.api.encoder.SubscribeEncoder;
 import com.pochemuto.orvibo.api.message.DiscoveryCommand;
 import com.pochemuto.orvibo.api.message.DiscoveryResponse;
 import com.pochemuto.orvibo.api.message.PowerCommand;
+import com.pochemuto.orvibo.api.message.PowerResponse;
 import com.pochemuto.orvibo.api.message.SubscribeCommand;
 import com.pochemuto.orvibo.api.message.SubscribeResponse;
 
@@ -37,16 +39,18 @@ public class OrviboApi {
     private static final InetSocketAddress RECIPIENT = new InetSocketAddress("255.255.255.255", PORT);
     private Channel channel;
 
+    private EventLoopGroup loopGroup;
+
     public static void main(String... args) throws Exception {
         OrviboApi orviboApi = new OrviboApi();
         orviboApi.init();
     }
 
     public void init() throws Exception {
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        loopGroup = new NioEventLoopGroup();
 
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(eventLoopGroup)
+        bootstrap.group(loopGroup)
                 .channel(NioDatagramChannel.class)
                 .option(ChannelOption.SO_BROADCAST, true)
                 .handler(new ChannelInitializer<NioDatagramChannel>() {
@@ -68,21 +72,29 @@ public class OrviboApi {
                 .addLast(new DiscoveryEncoder())
                 .addLast(new SubscribeDecoder())
                 .addLast(new SubscribeEncoder())
+                .addLast(new PowerDecoder())
                 .addLast(new PowerEncoder())
                 .addLast(new MessageHandler<>(this::received, DiscoveryResponse.class))
-                .addLast(new MessageHandler<>(this::received, SubscribeResponse.class));
+                .addLast(new MessageHandler<>(this::received, SubscribeResponse.class))
+                .addLast(new MessageHandler<>(this::received, PowerResponse.class));
     }
 
     private Consumer<DiscoveryResponse> discoveryHandler;
     private Consumer<SubscribeResponse> subscribeHandler;
+    private Consumer<PowerResponse> powerHandler;
 
-    public OrviboApi onDiscovery(Consumer<DiscoveryResponse> hander) {
-        this.discoveryHandler = hander;
+    public OrviboApi onDiscovery(Consumer<DiscoveryResponse> handler) {
+        this.discoveryHandler = handler;
         return this;
     }
 
-    public OrviboApi onSubscribe(Consumer<SubscribeResponse> hander) {
-        this.subscribeHandler = hander;
+    public OrviboApi onSubscribe(Consumer<SubscribeResponse> handler) {
+        this.subscribeHandler = handler;
+        return this;
+    }
+
+    public OrviboApi onPower(Consumer<PowerResponse> handler) {
+        this.powerHandler = handler;
         return this;
     }
 
@@ -114,5 +126,16 @@ public class OrviboApi {
         if (subscribeHandler != null) {
             subscribeHandler.accept(response);
         }
+    }
+
+    private void received(PowerResponse response) {
+        log.debug("power response received " + response);
+        if (powerHandler != null) {
+            powerHandler.accept(response);
+        }
+    }
+
+    public void shutdown() {
+        loopGroup.shutdownGracefully().awaitUninterruptibly();
     }
 }

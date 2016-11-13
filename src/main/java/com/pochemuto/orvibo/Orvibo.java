@@ -108,11 +108,11 @@ public class Orvibo {
     }
 
     private void onDiscovery(DiscoveryResponse response) {
-        if (response.getMac().isEmpty()) {
+        if (response.getMacAddress().isEmpty()) {
             log.trace("empty device found");
             return;
         }
-        Device device = new Device(response.getMac());
+        Device device = new Device(response.getMacAddress());
         device.setOn(response.isOn());
         knownDevices.add(device);
     }
