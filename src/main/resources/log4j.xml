@@ -15,7 +15,7 @@
     </logger>
 
     <logger name="io.netty" additivity="false">
-        <level value="WARN"/>
+        <level value="TRACE"/>
     </logger>
 
     <root>
