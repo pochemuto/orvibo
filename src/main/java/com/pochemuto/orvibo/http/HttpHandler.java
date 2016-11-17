@@ -76,7 +76,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
                         orvibo.setPower(r.getDeviceId(), false).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "toggle":
-                        orvibo.setPower(r.getDeviceId(), false).get(timeout, TimeUnit.MILLISECONDS);
+                        orvibo.toggle(r.getDeviceId()).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "state":
                     default:
