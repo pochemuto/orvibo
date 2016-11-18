@@ -3,6 +3,7 @@ package com.pochemuto.orvibo;
 import com.pochemuto.orvibo.api.OrviboApi;
 import com.pochemuto.orvibo.api.message.DiscoveryCommand;
 import com.pochemuto.orvibo.api.message.DiscoveryResponse;
+import com.pochemuto.orvibo.api.message.MacAddress;
 import com.pochemuto.orvibo.api.message.PowerCommand;
 import com.pochemuto.orvibo.api.message.PowerResponse;
 import com.pochemuto.orvibo.api.message.SubscribeCommand;
@@ -34,7 +35,7 @@ public class Orvibo {
 
     private final Map<Device, Instant> devices = new ConcurrentHashMap<>();
 
-    private final Map<Device, CompletableFuture<Boolean>> switchFutures = new ConcurrentHashMap<>();
+    private final Map<MacAddress, CompletableFuture<Boolean>> switchFutures = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -57,7 +58,7 @@ public class Orvibo {
         Device device = new Device(powerResponse.getMacAddress());
         device.setOn(powerResponse.isOn());
         deviceFound(device, "power");
-        CompletableFuture<Boolean> future = switchFutures.remove(device);
+        CompletableFuture<Boolean> future = switchFutures.remove(device.getMacAddress());
         if (future != null) {
             future.complete(device.isOn());
         }
@@ -100,29 +101,39 @@ public class Orvibo {
         return devices;
     }
 
-    public CompletableFuture<Boolean> setPower(Device device, boolean isOn) {
-        PowerCommand command = new PowerCommand(device.getMacAddress());
+    public CompletableFuture<Boolean> setPower(MacAddress mac, boolean isOn) {
+        PowerCommand command = new PowerCommand(mac);
         command.setOn(isOn);
-        log.info("Setting power for " + device.getMacAddress() + " to " + stringState(isOn));
-        return switchFutures.computeIfAbsent(device, d -> {
+        log.info("Setting power for " + mac + " to " + stringState(isOn));
+        return switchFutures.computeIfAbsent(mac, d -> {
             CompletableFuture<Boolean> future = new CompletableFuture<>();
             api.send(command);
+            scheduler.schedule(() -> {
+                if (future.isDone()) {
+                    future.cancel(false);
+                }
+                switchFutures.remove(d);
+            }, 5, TimeUnit.SECONDS);
             return future;
         });
     }
 
     public CompletableFuture<Boolean> setPower(int id, boolean isOn) {
         Device device = getDevices().get(id);
-        return setPower(device, isOn);
+        return setPower(device.getMacAddress(), isOn);
     }
 
-    public CompletableFuture<Boolean> toggle(Device device) {
-        return setPower(device, !device.isOn());
+    public CompletableFuture<Boolean> toggle(MacAddress device) {
+        return devices.keySet().stream()
+                .filter(d -> d.getMacAddress().equals(device))
+                .findAny()
+                .map(d -> setPower(d.getMacAddress(), !d.isOn()))
+                .orElse(CompletableFuture.completedFuture(false));
     }
 
     public CompletableFuture<Boolean> toggle(int id) {
         Device device = getDevices().get(id);
-        return toggle(device);
+        return toggle(device.getMacAddress());
     }
 
     public static void main(String... args) throws InterruptedException {
@@ -147,11 +158,7 @@ public class Orvibo {
                         break;
                     case "toggle":
                         int deviceIndex = Integer.parseInt(arguments[1]);
-                        Device selectedDevice = devices.get(deviceIndex);
-                        boolean powerOn = selectedDevice.isOn();
-                        System.out.println("turning " + stringState(powerOn) + " device "
-                                + selectedDevice.getMacAddress());
-                        orvibo.setPower(selectedDevice, !powerOn).thenAccept(state -> System.out.println("done"));
+                        orvibo.toggle(deviceIndex).thenAccept(state -> System.out.println("done"));
                         break;
                 }
             } catch (NumberFormatException ex) {

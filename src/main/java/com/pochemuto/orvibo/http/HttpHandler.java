@@ -1,6 +1,8 @@
 package com.pochemuto.orvibo.http;
 
+import com.pochemuto.orvibo.Device;
 import com.pochemuto.orvibo.Orvibo;
+import com.pochemuto.orvibo.api.message.MacAddress;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -20,13 +22,14 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.util.CharsetUtil;
-import lombok.Value;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
@@ -45,7 +48,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
     private final int timeout = 1000;
     /** Buffer that stores the response content */
     private final StringBuilder buf = new StringBuilder();
-
+    private final Pattern DIGITS = Pattern.compile("[0-9]+");
 
     public HttpHandler(Orvibo orvibo) {
         this.orvibo = orvibo;
@@ -70,18 +73,27 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
                 Request r = parseRequest(queryDecoder.path());
                 switch (r.getCommand()) {
                     case "on":
-                        orvibo.setPower(r.getDeviceId(), true).get(timeout, TimeUnit.MILLISECONDS);
+                        orvibo.setPower(r.getMacAddress(), true).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "off":
-                        orvibo.setPower(r.getDeviceId(), false).get(timeout, TimeUnit.MILLISECONDS);
+                        orvibo.setPower(r.getMacAddress(), false).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "toggle":
-                        orvibo.toggle(r.getDeviceId()).get(timeout, TimeUnit.MILLISECONDS);
+                        orvibo.toggle(r.getMacAddress()).get(timeout, TimeUnit.MILLISECONDS);
                         break;
                     case "state":
+                        orvibo.getDevices().stream()
+                                .filter(d -> d.getMacAddress().equals(r.getMacAddress()))
+                                .map(d -> d.isOn() ? "1" : "0")
+                                .findAny()
+                                .ifPresent(buf::append);
+                        break;
+                    case "list":
                     default:
-                        boolean on = orvibo.getDevices().get(r.getDeviceId()).isOn();
-                        buf.append(on ? "1" : "0");
+                        int n = 0;
+                        for (Device device : orvibo.getDevices()) {
+                            buf.append(n++).append(' ').append(device.getMacAddress()).append('\n');
+                        }
                 }
 
             }
@@ -146,13 +158,24 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
 
     private Request parseRequest(String path) {
         String[] split = path.substring(1).split("/");
-        return new Request(Integer.parseInt(split[0]), split[1]);
+        Request request = new Request(split[0]);
+        if (split.length > 1) {
+            String arg = split[1];
+            if (DIGITS.matcher(arg).matches()) {
+                request.setDeviceId(Integer.parseInt(arg));
+            } else {
+                MacAddress mac = MacAddress.fromString(arg);
+                request.setMacAddress(mac);
+            }
+        }
+        return request;
 
     }
 
-    @Value
+    @Data
     private static class Request {
-        int deviceId;
-        String command;
+        private final String command;
+        private MacAddress macAddress;
+        private int deviceId;
     }
 }
