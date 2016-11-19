@@ -139,6 +139,7 @@ public class Orvibo {
     public static void main(String... args) throws InterruptedException {
         Orvibo orvibo = new Orvibo();
         Scanner scanner = new Scanner(System.in);
+        loop:
         while (true) {
             try {
                 String command = scanner.nextLine();
@@ -149,7 +150,7 @@ public class Orvibo {
                     case "quit":
                         orvibo.shutdown();
                         System.out.println("exited by user request");
-                        break;
+                        break loop;
                     case "list":
                         for (int i = 0; i < devices.size(); i++) {
                             Device device = devices.get(i);
