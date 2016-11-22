@@ -71,6 +71,10 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
                 buf.setLength(0);
                 log.info("Received request: " + queryDecoder.path());
                 Request r = parseRequest(queryDecoder.path());
+                if (r.getMacAddress() == null) {
+                    MacAddress mac = orvibo.getDevices().get(r.getDeviceId()).getMacAddress();
+                    r.setMacAddress(mac);
+                }
                 switch (r.getCommand()) {
                     case "on":
                         orvibo.setPower(r.getMacAddress(), true).get(timeout, TimeUnit.MILLISECONDS);

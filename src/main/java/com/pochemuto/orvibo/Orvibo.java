@@ -175,6 +175,7 @@ public class Orvibo {
         loop:
         while (true) {
             try {
+                System.out.print("> ");
                 String command = scanner.nextLine();
                 List<Device> devices = orvibo.getDevices();
                 String[] arguments = command.split("\\s+");
