@@ -92,7 +92,9 @@ public class HttpHandler extends SimpleChannelInboundHandler<Object> {
                     default:
                         int n = 0;
                         for (Device device : orvibo.getDevices()) {
-                            buf.append(n++).append(' ').append(device.getMacAddress()).append('\n');
+                            buf.append(n++).append(' ')
+                                    .append(device.getMacAddress().toString().replaceAll("\\s+", "")).append(' ')
+                                    .append(device.isOn() ? "ON" : "OFF").append('\n');
                         }
                 }
 

@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Orvibo Devices API
  * @author Alexander Kramarev (pochemuto@gmail.com)
  * @date 12.11.2016
  */
@@ -95,12 +96,22 @@ public class Orvibo {
         }
     }
 
+    /**
+     * Get all found devices.
+     * It doesn't send discovery command, so result wight be empty if no one socket responded yet.
+     */
     public List<Device> getDevices() {
         List<Device> devices = new ArrayList<>(this.devices.keySet());
         devices.sort(Comparator.comparing(Device::getMacAddress));
         return devices;
     }
 
+    /**
+     * Set power state for specific device
+     * @param mac device mac address
+     * @param isOn power state
+     * @return future
+     */
     public CompletableFuture<Boolean> setPower(MacAddress mac, boolean isOn) {
         PowerCommand command = new PowerCommand(mac);
         command.setOn(isOn);
@@ -118,24 +129,46 @@ public class Orvibo {
         });
     }
 
+    /**
+     * Set power state for specific device
+     * @param id device index in device list, see {@link #getDevices()}
+     * @param isOn power state
+     * @return future
+     */
     public CompletableFuture<Boolean> setPower(int id, boolean isOn) {
         Device device = getDevices().get(id);
         return setPower(device.getMacAddress(), isOn);
     }
 
-    public CompletableFuture<Boolean> toggle(MacAddress device) {
+    /**
+     * Toggle power state for specific device
+     * @param mac device mac address
+     * @return future
+     */
+    public CompletableFuture<Boolean> toggle(MacAddress mac) {
         return devices.keySet().stream()
-                .filter(d -> d.getMacAddress().equals(device))
+                .filter(d -> d.getMacAddress().equals(mac))
                 .findAny()
                 .map(d -> setPower(d.getMacAddress(), !d.isOn()))
                 .orElse(CompletableFuture.completedFuture(false));
     }
 
+    /**
+     * Toggle power state for specific device
+     * @param id device index in device list, see {@link #getDevices()}
+     * @return future
+     */
     public CompletableFuture<Boolean> toggle(int id) {
         Device device = getDevices().get(id);
         return toggle(device.getMacAddress());
     }
 
+    /**
+     * Interactive terminal. Following commands are supported:
+     * - exit or quit
+     * - list
+     * - toggle device_id
+     */
     public static void main(String... args) throws InterruptedException {
         Orvibo orvibo = new Orvibo();
         Scanner scanner = new Scanner(System.in);
@@ -176,6 +209,9 @@ public class Orvibo {
         return isOn ? "ON" : "OFF";
     }
 
+    /**
+     * Shutdown api.
+     */
     public void shutdown() throws InterruptedException {
         api.shutdown();
         scheduler.shutdown();

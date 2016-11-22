@@ -21,13 +21,18 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class HttpServer {
-    private static final int PORT = 4352;
+    public static final int DEFAULT_PORT = 4352;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private final Orvibo orvibo;
+    private final int port;
 
-    public HttpServer(Orvibo orvibo) {
+    public HttpServer(Orvibo orvibo, int port) {
         this.orvibo = orvibo;
+        this.port = port;
+    }
+    public HttpServer(Orvibo orvibo) {
+        this(orvibo, DEFAULT_PORT);
     }
 
     public void init() {
@@ -49,9 +54,9 @@ public class HttpServer {
                         }
                     });
 
-            b.bind(PORT).sync().channel();
+            b.bind(port).sync().channel();
 
-            log.info("Http server started on " + PORT);
+            log.info("Http server started on " + port);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

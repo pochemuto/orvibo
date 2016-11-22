@@ -24,9 +24,11 @@ public class DiscoveryDecoder extends MessageToMessageDecoder<Message> {
 
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
+        if (!super.acceptInboundMessage(msg)) {
+            return false;
+        }
         CommandId commandId = ((Message) msg).getCommandId();
-        return super.acceptInboundMessage(msg) &&
-                (commandId == CommandId.DISCOVERY || commandId == CommandId.DISCOVERY_TARGET);
+        return (commandId == CommandId.DISCOVERY || commandId == CommandId.DISCOVERY_TARGET);
     }
 
     @Override

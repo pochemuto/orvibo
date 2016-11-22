@@ -29,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.util.function.Consumer;
 
 /**
+ * Low-level API support
  * @author Alexander Kramarev (pochemuto@gmail.com)
  * @date 31.10.2016
  */
@@ -41,6 +42,9 @@ public class OrviboApi {
 
     private EventLoopGroup loopGroup;
 
+    /**
+     * Initialize channel
+     */
     public void init() throws Exception {
         loopGroup = new NioEventLoopGroup();
 
@@ -78,16 +82,25 @@ public class OrviboApi {
     private Consumer<SubscribeResponse> subscribeHandler;
     private Consumer<PowerResponse> powerHandler;
 
+    /**
+     * Set onDiscovery handler
+     */
     public OrviboApi onDiscovery(Consumer<DiscoveryResponse> handler) {
         this.discoveryHandler = handler;
         return this;
     }
 
+    /**
+     * Set onSubscribe handler
+     */
     public OrviboApi onSubscribe(Consumer<SubscribeResponse> handler) {
         this.subscribeHandler = handler;
         return this;
     }
 
+    /**
+     * Set onPower handler
+     */
     public OrviboApi onPower(Consumer<PowerResponse> handler) {
         this.powerHandler = handler;
         return this;
@@ -97,14 +110,26 @@ public class OrviboApi {
         channel.writeAndFlush(message);
     }
 
+    /**
+     * Send DiscoveryCommand
+     * @param command command
+     */
     public void send(DiscoveryCommand command) {
         send0(command);
     }
 
+    /**
+     * Send SubscribeCommand
+     * @param command command
+     */
     public void send(SubscribeCommand command) {
         send0(command);
     }
 
+    /**
+     * Send PowerCommand
+     * @param command command
+     */
     public void send(PowerCommand command) {
         send0(command);
     }
@@ -130,6 +155,9 @@ public class OrviboApi {
         }
     }
 
+    /**
+     * Shutdown server
+     */
     public void shutdown() {
         loopGroup.shutdownGracefully().awaitUninterruptibly();
     }
