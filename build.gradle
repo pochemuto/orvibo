@@ -78,6 +78,9 @@ artifacts {
     archives sourcesJar
 }
 
+def ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : System.getenv('ossrhUsername')
+def ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : System.getenv('ossrhPassword')
+
 uploadArchives {
     repositories {
         mavenDeployer {
