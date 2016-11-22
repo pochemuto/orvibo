@@ -2,7 +2,28 @@ Orvibo Java API
 ===============
 
 Allow control your sockets from java code, terminal, or via http.
-Example:
+
+Using in code
+-------------
+
+Add Sonatype public repository:
+
+```groovy
+repositories {
+    mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/groups/public/"
+    }
+}
+```
+
+and dependency: 
+
+```groovy
+compile group: 'com.pochemuto', name: 'orvibo', version: '0.9.0'
+```
+
+Basic example:
 
 ```java
 Orvibo orvibo = new Orvibo();
@@ -21,7 +42,8 @@ if (!devices.isEmpty()) {
 }
 ```
 
-Basic terminal control:
+Basic terminal control
+----------------------
 ```
 java -cp orvibo-1.0-SNAPSHOT-all.jar com.pochemuto.orvibo.Orvibo
 > list
@@ -31,8 +53,11 @@ done
 > exit
 ```
 
+Http interface
+--------------
+
 For using http interface run:
-```
+```bash
 $ java -jar orvibo-1.0-SNAPSHOT-all.jar > /dev/null &
 $ curl http://localhost:4352/list
 0 accf238d9b70 OFF
