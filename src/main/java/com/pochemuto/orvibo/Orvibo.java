@@ -99,6 +99,7 @@ public class Orvibo {
     /**
      * Get all found devices.
      * It doesn't send discovery command, so result wight be empty if no one socket responded yet.
+     * @return list of known devices
      */
     public List<Device> getDevices() {
         List<Device> devices = new ArrayList<>(this.devices.keySet());
@@ -168,6 +169,8 @@ public class Orvibo {
      * - exit or quit
      * - list
      * - toggle device_id
+     * @param args arguments
+     * @throws InterruptedException on interrupt blocking request
      */
     public static void main(String... args) throws InterruptedException {
         Orvibo orvibo = new Orvibo();
@@ -212,6 +215,7 @@ public class Orvibo {
 
     /**
      * Shutdown api.
+     * @throws InterruptedException on interrupt
      */
     public void shutdown() throws InterruptedException {
         api.shutdown();

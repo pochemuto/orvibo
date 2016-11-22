@@ -1,8 +1,10 @@
-group 'com.pochemuto.orvibo'
-version '1.0-SNAPSHOT'
+group 'com.pochemuto'
+version '0.9.0'
 
 apply plugin: 'java'
 apply plugin: 'gradle-one-jar'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 
 repositories {
@@ -29,12 +31,21 @@ buildscript {
         classpath 'com.github.rholder:gradle-one-jar:1.0.4'
     }
 }
+
 jar {
     manifest {
         attributes(
                 'Main-Class': 'com.pochemuto.orvibo.HttpGate',
         )
     }
+}
+
+javadoc {
+    options.tags = [ 'date' ]
+}
+
+signing {
+    sign configurations.archives
 }
 
 task fatJar(type: Jar) {
@@ -50,7 +61,64 @@ task fatJar(type: Jar) {
     with jar
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
 artifacts {
     archives fatJar
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'Orvibo API'
+                packaging 'jar'
+                description 'Orvibo Java API provides control from code and via http'
+                url 'http://github.com/pochemuto/orvibo'
+
+                scm {
+                    url 'https://github.com:pochemuto/orvibo'
+                    connection 'scm:git@github.com:pochemuto/orvibo.git'
+                    developerConnection 'scm:git@github.com:pochemuto/orvibo.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The MIT License (MIT)'
+                        url 'https://opensource.org/licenses/MIT'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'pochemuto'
+                        name 'Alexander Kramarev'
+                        email 'pochemuto@gmail.com'
+                    }
+                }
+            }
+        }
+    }
 }

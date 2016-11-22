@@ -44,6 +44,7 @@ public class OrviboApi {
 
     /**
      * Initialize channel
+     * @throws Exception initialization failure
      */
     public void init() throws Exception {
         loopGroup = new NioEventLoopGroup();
@@ -84,6 +85,8 @@ public class OrviboApi {
 
     /**
      * Set onDiscovery handler
+     * @param handler response handler
+     * @return self
      */
     public OrviboApi onDiscovery(Consumer<DiscoveryResponse> handler) {
         this.discoveryHandler = handler;
@@ -92,6 +95,8 @@ public class OrviboApi {
 
     /**
      * Set onSubscribe handler
+     * @param handler response handler
+     * @return self
      */
     public OrviboApi onSubscribe(Consumer<SubscribeResponse> handler) {
         this.subscribeHandler = handler;
@@ -100,6 +105,8 @@ public class OrviboApi {
 
     /**
      * Set onPower handler
+     * @param handler response handler
+     * @return self
      */
     public OrviboApi onPower(Consumer<PowerResponse> handler) {
         this.powerHandler = handler;
