@@ -1,7 +1,8 @@
 Orvibo Java API [![Build Status](https://travis-ci.org/pochemuto/orvibo.svg?branch=master)](https://travis-ci.org/pochemuto/orvibo)
 ===============
 
-Allow control your sockets from java code, terminal, or via http.
+Allow control your sockets from java code, terminal, or via http.  
+[Project blog](http://pochemuto.com/2016-11-19-orvibo-java-sdk/)
 
 Using in code
 -------------
