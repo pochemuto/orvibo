@@ -6,18 +6,7 @@ Allow control your sockets from java code, terminal, or via http.
 Using in code
 -------------
 
-Add Sonatype public repository:
-
-```groovy
-repositories {
-    mavenCentral()
-    maven {
-        url "https://oss.sonatype.org/content/groups/public/"
-    }
-}
-```
-
-and dependency: 
+Add dependency to your project: 
 
 ```groovy
 compile group: 'com.pochemuto', name: 'orvibo', version: '0.9.0'
