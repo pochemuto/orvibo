@@ -1,6 +1,10 @@
 language: java
 sudo: false
 jdk:
-  - oraclejdk8
-install: true
-script: gradle check
+- oraclejdk8
+before_install:
+- openssl aes-256-cbc -K $encrypted_6c54c4c15d27_key -iv $encrypted_6c54c4c15d27_iv
+  -in .ci/secrets.tar.enc -out secrets.tar -d
+- tar xvf secrets.tar
+env:
+  secure: ECW4fG1ECXezJ4bdLr6sJQrC/Dtzg4DWt213Rp+bc3sofZuAJRyD6Zy+Zez0M17n3fOa5004P0eSvoSO4R3AicNftwJX4DlTNRnlx8baS4tbEw6+a09O5K1hGouA/fXI52rLQxzBjJHxMv/upPl8Xxz51kdAiWJEojn/aZQAhhV1BzIVga+iAD6rg1XAfBPRHlYEiMTBoq/OB/SUqZGvKdXaosdr5puaIh3b+gqPrdkNRFyg+9YRx+jsIpgaKVjddMFgD92pA8TcLcLvmZrrIoyRhjKjYIJHB02dK1iGS4Guk/Zp68Nbp3d0oACKreLPowdgalqHRcgGFjV6ohynls/qp9N9sb03YPD5hybTUE/2ddOTn4BtlCEczbpaLStiI4BrQQ3GVm6uJblJWkZkzMUr17oM1KaGe3HVyGM+qEi1jQ7XsmPQMwzhy8jgEYOFmokJwX18oLxcufAQQomTZp5U8Gi7Mi1Drd7okj8vvf1KzjlQeAmUUxI2Q47HqqA8EO/VTdiVimwD+lTFWd2HF63+zAtwGRs2q5yc39YvESZAFI9rPK5nebVTp0QEeuk1hGCkcJX6McsvYFosbYF8a7ehcutZayUu34DUGc3hqAlMXFJ/7nkm4Movgcknv6PPBJBFKODFKzQcRhg25bo/GtmwOGRxfBLmOVukkqqYUZo=

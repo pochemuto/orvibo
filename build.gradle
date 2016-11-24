@@ -44,6 +44,17 @@ javadoc {
     options.tags = [ 'date' ]
 }
 
+// map env variables to ext properties
+// based on https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials
+def envMappings = ['signing.keyId': 'SIGNING_KEY_ID', 'signing.secretKeyRingFile': 'SIGNING_FILE', 'signing.password': 'SIGNING_PASSWORD']
+allprojects {
+  envMappings.each{ entry -> 
+    if (!ext.has(entry.key) && System.env[entry.value] != null) {
+      ext[entry.key] = System.env[entry.value]
+    }
+  }
+}
+
 signing {
     sign configurations.archives
 }

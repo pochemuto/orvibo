@@ -18,3 +18,5 @@ gradle-app.setting
 .idea/
 *.iws
 *.ipr
+
+.ci/secrets.tar
